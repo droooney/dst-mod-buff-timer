@@ -1,29 +1,52 @@
-local InventoryReplica = require("components/inventory_replica")
+local Root = require("BuffTimer/widgets/Root")
+
+local Constants = require("BuffTimer/Constants")
+local Util = require("BuffTimer/Util")
 
 require("constants")
 
---local Root = require("SpiceTimer/widgets/Root")
-local Util = require("SpiceTimer/Util")
+AddClassPostConstruct("components/inventory_replica", function (inventory)
+    local UseItemFromInvTile = inventory.UseItemFromInvTile
 
-local UseItemFromInvTile = InventoryReplica.UseItemFromInvTile
+    inventory.UseItemFromInvTile = function (self, item)
+        UseItemFromInvTile(self, item)
 
-function InventoryReplica:UseItemFromInvTile(item)
-    UseItemFromInvTile(self, item)
+        if not item then
+            return
+        end
 
-    if not item then
-        return
+        local buffType = Util:EndsWith(item.prefab, "_spice_chili")
+            and Constants.BuffType.SPICE_CHILI
+            or Util:EndsWith(item.prefab, "_spice_sugar")
+                and Constants.BuffType.SPICE_HONEY
+                or Util:EndsWith(item.prefab, "_spice_garlic")
+                    and Constants.BuffType.SPICE_GARLIC
+                    or Constants.BuffByPrefab[item.prefab]
+
+        if buffType == nil then
+            return
+        end
+
+        local buffTimer = Util:GetPlayer().HUD.controls.buffTimer
+        local duration = Constants.BuffDuration[buffType]
+
+        self.inst:DoTaskInTime(duration, function ()
+            buffTimer:RemoveBuff(buffType)
+        end)
+
+        buffTimer:AddBuff({
+            type = buffType,
+            duration = duration,
+        })
     end
+end)
 
-    local isChili = Util:EndsWith(item.prefab, "_spice_chili")
-    local isHoney = Util:EndsWith(item.prefab, "_spice_sugar")
-
-    if not isChili and not isHoney then
-        return
-    end
-
-    self.inst:DoTaskInTime(isChili and TUNING.BUFF_ATTACK_DURATION or TUNING.BUFF_WORKEFFECTIVENESS_DURATION, function ()
-        Util:Log(isChili and "chili" or "honey", "over")
+AddClassPostConstruct("widgets/controls", function (controls)
+    controls.inst:DoTaskInTime(0, function ()
+        controls.buffTimer = controls.top_root:AddChild(Root())
     end)
 
-    Util:Log(isChili and "chili" or "honey", "start")
-end
+    controls.inst:ListenForEvent("death", function ()
+        controls.buffTimer:ClearBuffs()
+    end, Util:GetPlayer())
+end)

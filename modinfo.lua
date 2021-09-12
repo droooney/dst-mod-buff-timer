@@ -1,4 +1,4 @@
-name = "Spice Timer"
+name = "Buff Timer"
 
 description = "Cool mod by droooney"
 
