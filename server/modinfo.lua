@@ -1,4 +1,4 @@
-name = "Buff Timer (client)"
+name = "Buff Timer (server)"
 
 description = "Cool mod by droooney"
 
@@ -10,9 +10,9 @@ api_version = 10
 
 dst_compatible = true
 
-all_clients_require_mod = false
+all_clients_require_mod = true
 
-client_only_mod = true
+client_only_mod = false
 
 --icon_atlas = "modicon.xml"
 --icon = "modicon.tex"

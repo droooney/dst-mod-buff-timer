@@ -21,13 +21,13 @@ AddClassPostConstruct("components/inventory_replica", function (inventory)
                 and Constants.BuffType.SPICE_HONEY
                 or Util:EndsWith(item.prefab, "_spice_garlic")
                     and Constants.BuffType.SPICE_GARLIC
-                    or Constants.BuffByPrefab[item.prefab]
+                    or Constants.BuffByFoodPrefab[item.prefab]
 
-        if buffType == nil then
+        if not buffType then
             return
         end
 
-        local buffTimer = Util:GetPlayer().HUD.controls.buffTimer
+        local buffTimer = GLOBAL.ThePlayer.HUD.controls.buffTimer
         local duration = Constants.BuffDuration[buffType]
 
         self.inst:DoTaskInTime(duration, function ()
@@ -48,5 +48,5 @@ AddClassPostConstruct("widgets/controls", function (controls)
 
     controls.inst:ListenForEvent("death", function ()
         controls.buffTimer:ClearBuffs()
-    end, Util:GetPlayer())
+    end, GLOBAL.ThePlayer)
 end)

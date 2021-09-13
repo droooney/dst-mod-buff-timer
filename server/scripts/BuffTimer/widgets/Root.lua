@@ -15,10 +15,11 @@ local MARGIN = 10
 local FONT_SIZE = 30
 local FONT = NUMBERFONT
 
-local Root = Class(Widget, function (self)
+local Root = Class(Widget, function (self, buffManager, timeDifferenceManager)
     Widget._ctor(self, "Root")
 
-    self.buffs = {}
+    self.TimeDifferenceManager = timeDifferenceManager
+    self.buffs = buffManager:GetBuffs()
     self.listUpdated = false
 
     self.root = self:AddChild(Widget("root"))
@@ -30,51 +31,17 @@ local Root = Class(Widget, function (self)
     self.root.buffs:SetHAnchor(ANCHOR_LEFT)
     self.root.buffs.items = {}
 
+    buffManager:SetOnBuffsChanged(function (buffs)
+        self.buffs = buffs
+        self.listUpdated = true
+    end)
+
     self:StartUpdating()
 end)
-
-function Root:FindBuffIndex(buffType)
-    return Util:FindIndex(self.buffs, function (buff) return buff.type == buffType end)
-end
-
-function Root:SetBuffs(buffs)
-    self.buffs = {}
-
-    Util:ForEach(buffs, function (buff) self:AddBuff(buff) end)
-
-    self.listUpdated = true
-end
 
 function Root:ClearBuffs()
     self.buffs = {}
     self.listUpdated = true
-end
-
-function Root:AddBuff(buff)
-    local index = self:FindBuffIndex(buff.type)
-    local buffObject = {
-        type = buff.type,
-        duration = buff.duration,
-        startedAt = GetTime(),
-    }
-
-    if index == 0 then
-        table.insert(self.buffs, buffObject)
-    else
-        self.buffs[index] = buffObject
-    end
-
-    self.listUpdated = true
-end
-
-function Root:RemoveBuff(buffType)
-    local index = self:FindBuffIndex(buffType)
-
-    if index ~= 0 then
-        table.remove(self.buffs, index)
-
-        self.listUpdated = true
-    end
 end
 
 function Root:OnUpdate()
@@ -109,8 +76,8 @@ function Root:OnUpdate()
 
     Util:ForEach(self.buffs, function (buff, i)
         local buffWidget = self.root.buffs.items[i]
-
-        local timeLeft = math.max(0, math.floor(buff.duration - (GetTime() - buff.startedAt)))
+        local timePassed = GetTime() - buff.startedAt - self.TimeDifferenceManager.timeDiff
+        local timeLeft = math.max(0, math.floor(buff.duration - timePassed))
         local minutes = math.floor(timeLeft / 60)
         local seconds = timeLeft % 60
 

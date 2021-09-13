@@ -15,7 +15,7 @@ return {
 
     Log = function (self, ...)
         if DEBUG_MODE then
-            print("[Buff Timer (client)]:", ...)
+            print("[Buff Timer (server)]:", ...)
         end
     end,
 
