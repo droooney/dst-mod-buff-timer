@@ -1,4 +1,4 @@
-name = "Buff Timer (server)"
+name = "Buff Timer"
 
 description = "Cool mod by droooney"
 
