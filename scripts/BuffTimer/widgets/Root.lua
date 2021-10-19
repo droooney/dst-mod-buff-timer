@@ -20,7 +20,7 @@ local Root = Class(Widget, function (self, buffManager, timeDifferenceManager)
 
     self.TimeDifferenceManager = timeDifferenceManager
     self.buffs = buffManager:GetBuffs()
-    self.listUpdated = false
+    self.listUpdated = true
 
     self.root = self:AddChild(Widget("root"))
     self.root:SetVAnchor(ANCHOR_TOP)
@@ -76,6 +76,11 @@ function Root:OnUpdate()
 
     Util:ForEach(self.buffs, function (buff, i)
         local buffWidget = self.root.buffs.items[i]
+
+        if not buffWidget then
+            return
+        end
+
         local timePassed = GetTime() - buff.startedAt - self.TimeDifferenceManager.timeDiff
         local timeLeft = math.max(0, math.floor(buff.duration - timePassed))
         local minutes = math.floor(timeLeft / 60)
