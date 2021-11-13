@@ -17,12 +17,28 @@ end)
 
 for prefab, buffType in pairs(Constants.BuffByPrefab) do
     local onAttachBuff = function (inst, target)
+        local player_classified = target.player_classified
+
+        if not player_classified then
+            return
+        end
+
         local timeLeft = inst.components.timer:GetTimeLeft("buffover")
 
-        target.player_classified.components.BuffManager:AddBuff({
+        player_classified.components.BuffManager:AddBuff({
             type = buffType,
             duration = timeLeft,
         })
+    end
+
+    local onDetachBuff = function (inst, target)
+        local player_classified = target.player_classified
+
+        if not player_classified then
+            return
+        end
+
+        player_classified.components.BuffManager:RemoveBuff(buffType)
     end
 
     AddPrefabPostInit("buff_" .. prefab, function (inst)
@@ -42,8 +58,7 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
 
         inst.components.debuff:SetDetachedFn(function (inst, target, ...)
             ondetachedfn(inst, target, ...)
-
-            target.player_classified.components.BuffManager:RemoveBuff(buffType)
+            onDetachBuff(inst, target)
         end)
     end)
 end
