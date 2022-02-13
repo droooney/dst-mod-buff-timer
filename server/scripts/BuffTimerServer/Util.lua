@@ -4,19 +4,13 @@ require("constants")
 require("strings")
 require("stringutil")
 
-local DEBUG_MODE = false
-
---DEBUG_MODE = true
-
 return {
     Inspect = function (self, value)
         return inspect(value)
     end,
 
     Log = function (self, ...)
-        if DEBUG_MODE then
-            print("[Buff Timer (server)]:", ...)
-        end
+        print("[Buff Timer (server)]:", ...)
     end,
 
     FindIndex = function (self, array, cb)
