@@ -3,7 +3,7 @@ local Util = require("BuffTimerClient/Util")
 
 local BUFF_EVENT_PREFIX = "buffOver_"
 
-local BuffManagerClientClient = Class(function (self, inst)
+local BuffManagerClient = Class(function (self, inst)
     self.inst = inst
     self.buffs = {}
     self.onBuffsChanged = nil
