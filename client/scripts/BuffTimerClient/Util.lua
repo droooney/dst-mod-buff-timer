@@ -6,7 +6,7 @@ require("stringutil")
 
 local DEBUG_MODE = false
 
-DEBUG_MODE = true
+--DEBUG_MODE = true
 
 local SERVER_MOD_NAMES = {"workshop-2630628898", "dst-mod-buff-timer-server"}
 
@@ -17,7 +17,7 @@ return {
 
     Log = function (self, ...)
         if DEBUG_MODE then
-            print("[Buff Timer (server)]:", ...)
+            print("[Buff Timer (client)]:", ...)
         end
     end,
 

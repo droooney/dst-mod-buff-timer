@@ -10,8 +10,6 @@ function runIfNeeded(cb)
         serverModEnabled = Util:HasServerMod()
     end
 
-    Util:Log("enabled", serverModEnabled)
-
     if not serverModEnabled then
         cb()
     end

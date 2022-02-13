@@ -6,7 +6,7 @@ require("stringutil")
 
 local DEBUG_MODE = false
 
-DEBUG_MODE = true
+--DEBUG_MODE = true
 
 return {
     Inspect = function (self, value)
