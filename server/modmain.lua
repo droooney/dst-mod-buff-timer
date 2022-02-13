@@ -1,7 +1,6 @@
 local Root = require("BuffTimer/widgets/Root")
 
 local Constants = require("BuffTimer/Constants")
-local Util = require("BuffTimer/Util")
 
 require("constants")
 require("json")
