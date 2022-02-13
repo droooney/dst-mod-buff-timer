@@ -1,7 +1,6 @@
-local Constants = require("BuffTimer/Constants")
-local Util = require("BuffTimer/Util")
+local Util = require("BuffTimerServer/Util")
 
-local BuffManager = Class(function (self, inst)
+local BuffManagerServer = Class(function (self, inst)
     self.inst = inst
     self.buffs = {}
     self.netBuffs = net_string(inst.GUID, "buffs", "buffsChanged")
@@ -18,7 +17,7 @@ local BuffManager = Class(function (self, inst)
     else
         inst:DoTaskInTime(0, function (inst)
             if ThePlayer.player_classified == inst then
-                SendModRPCToServer(GetModRPC("BuffManager", "getBuffs"), inst)
+                SendModRPCToServer(GetModRPC("BuffManagerServer", "getBuffs"), inst)
 
                 inst:ListenForEvent("buffsChanged", function ()
                     self:SetBuffsFromNet()
@@ -28,7 +27,7 @@ local BuffManager = Class(function (self, inst)
     end
 end)
 
-function BuffManager:AddBuff(buff)
+function BuffManagerServer:AddBuff(buff)
     local index = self:FindBuffIndex(buff.type)
     local buffObject = {
         type = buff.type,
@@ -45,26 +44,26 @@ function BuffManager:AddBuff(buff)
     self:BuffsChanged()
 end
 
-function BuffManager:BuffsChanged()
+function BuffManagerServer:BuffsChanged()
     if self.onBuffsChanged then
         self.onBuffsChanged(self.buffs)
     end
 end
 
-function BuffManager:ClearBuffs()
+function BuffManagerServer:ClearBuffs()
     self.buffs = {}
     self:BuffsChanged()
 end
 
-function BuffManager:FindBuffIndex(buffType)
+function BuffManagerServer:FindBuffIndex(buffType)
     return Util:FindIndex(self.buffs, function (buff) return buff.type == buffType end)
 end
 
-function BuffManager:GetBuffs()
+function BuffManagerServer:GetBuffs()
     return self.buffs
 end
 
-function BuffManager:RemoveBuff(buffType)
+function BuffManagerServer:RemoveBuff(buffType)
     local index = self:FindBuffIndex(buffType)
 
     if index ~= 0 then
@@ -74,13 +73,13 @@ function BuffManager:RemoveBuff(buffType)
     end
 end
 
-function BuffManager:SetBuffsFromNet()
+function BuffManagerServer:SetBuffsFromNet()
     self.buffs = json.decode(self.netBuffs:value())
     self:BuffsChanged()
 end
 
-function BuffManager:SetOnBuffsChanged(onBuffsChanged)
+function BuffManagerServer:SetOnBuffsChanged(onBuffsChanged)
     self.onBuffsChanged = onBuffsChanged
 end
 
-return BuffManager
+return BuffManagerServer

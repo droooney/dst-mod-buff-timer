@@ -27,21 +27,22 @@ local BuffImagePrefab = {
     FISH_CORDON_BLEU = "frogfishbowl",
 }
 
-local BuffByPrefab = {
-    attack = BuffType.SPICE_CHILI,
-    workeffectiveness = BuffType.SPICE_HONEY,
-    playerabsorption = BuffType.SPICE_GARLIC,
-    electricattack = BuffType.VOLT_GOAT_JELLY,
-    glowberrymousse = BuffType.GLOW_BERRY_MOUSSE,
-    sleepresistance = BuffType.MUSHY_CAKE,
-    moistureimmunity = BuffType.FISH_CORDON_BLEU,
+local BuffByFoodPrefab = {
+    voltgoatjelly = BuffType.VOLT_GOAT_JELLY,
+    shroomcake = BuffType.MUSHY_CAKE,
+    frogfishbowl = BuffType.FISH_CORDON_BLEU,
 }
 
-local BuffBy
+local BuffBySpicePrefab = {
+    spice_chili = BuffType.SPICE_CHILI,
+    spice_garlic = BuffType.SPICE_GARLIC,
+    spice_sugar = BuffType.SPICE_HONEY,
+}
 
 return {
     BuffType = BuffType,
     BuffDuration = BuffDuration,
     BuffImagePrefab = BuffImagePrefab,
-    BuffByPrefab = BuffByPrefab,
+    BuffByFoodPrefab = BuffByFoodPrefab,
+    BuffBySpicePrefab = BuffBySpicePrefab,
 }

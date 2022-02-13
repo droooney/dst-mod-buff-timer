@@ -2,8 +2,8 @@ local Widget = require("widgets/widget")
 local Image = require("widgets/image")
 local Text = require("widgets/text")
 
-local Constants = require("BuffTimer/Constants")
-local Util = require("BuffTimer/Util")
+local Constants = require("BuffTimerClient/Constants")
+local Util = require("BuffTimerClient/Util")
 
 require("constants")
 require("fonts")
@@ -15,10 +15,9 @@ local MARGIN = 10
 local FONT_SIZE = 30
 local FONT = NUMBERFONT
 
-local Root = Class(Widget, function (self, buffManager, timeDifferenceManager)
+local Root = Class(Widget, function (self, buffManager)
     Widget._ctor(self, "Root")
 
-    self.TimeDifferenceManager = timeDifferenceManager
     self.buffs = buffManager:GetBuffs()
     self.listUpdated = true
 
@@ -81,7 +80,7 @@ function Root:OnUpdate()
             return
         end
 
-        local timePassed = GetTime() - buff.startedAt - self.TimeDifferenceManager.timeDiff
+        local timePassed = GetTime() - buff.startedAt
         local timeLeft = math.max(0, math.floor(buff.duration - timePassed))
         local minutes = math.floor(timeLeft / 60)
         local seconds = timeLeft % 60

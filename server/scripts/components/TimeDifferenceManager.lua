@@ -1,5 +1,3 @@
-local Util = require("BuffTimer/Util")
-
 local TimeDifferenceManager = Class(function (self, inst)
     self.inst = inst
     self.netServerTime = net_float(inst.GUID, "serverTime", "serverTimeChanged")

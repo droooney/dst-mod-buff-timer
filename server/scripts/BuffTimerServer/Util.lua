@@ -4,9 +4,9 @@ require("constants")
 require("strings")
 require("stringutil")
 
-local DEBUG_MODE = true
+local DEBUG_MODE = false
 
--- DEBUG_MODE = false
+DEBUG_MODE = true
 
 return {
     Inspect = function (self, value)
@@ -17,10 +17,6 @@ return {
         if DEBUG_MODE then
             print("[Buff Timer (server)]:", ...)
         end
-    end,
-
-    EndsWith = function (self, str, ending)
-        return ending == "" or str:sub(-#ending) == ending
     end,
 
     FindIndex = function (self, array, cb)

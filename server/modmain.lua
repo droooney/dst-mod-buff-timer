@@ -1,6 +1,6 @@
-local Root = require("BuffTimer/widgets/Root")
+local Root = require("BuffTimerServer/widgets/Root")
 
-local Constants = require("BuffTimer/Constants")
+local Constants = require("BuffTimerServer/Constants")
 
 require("constants")
 require("json")
@@ -8,7 +8,7 @@ require("json")
 AddClassPostConstruct("widgets/controls", function (controls)
     controls.inst:DoTaskInTime(0, function ()
         controls.buffTimer = controls.top_root:AddChild(Root(
-            GLOBAL.ThePlayer.player_classified.components.BuffManager,
+            GLOBAL.ThePlayer.player_classified.components.BuffManagerServer,
             GLOBAL.ThePlayer.player_classified.components.TimeDifferenceManager
         ))
     end)
@@ -24,7 +24,7 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
 
         local timeLeft = inst.components.timer:GetTimeLeft("buffover")
 
-        player_classified.components.BuffManager:AddBuff({
+        player_classified.components.BuffManagerServer:AddBuff({
             type = buffType,
             duration = timeLeft,
         })
@@ -37,7 +37,7 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
             return
         end
 
-        player_classified.components.BuffManager:RemoveBuff(buffType)
+        player_classified.components.BuffManagerServer:RemoveBuff(buffType)
     end
 
     AddPrefabPostInit("buff_" .. prefab, function (inst)
@@ -62,16 +62,16 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
     end)
 end
 
-AddModRPCHandler("BuffManager", "getBuffs", function (player, inst)
-    if inst.components.BuffManager then
-        local BuffManager = inst.components.BuffManager
+AddModRPCHandler("BuffManagerServer", "getBuffs", function (player, inst)
+    if inst.components.BuffManagerServer then
+        local BuffManagerServer = inst.components.BuffManagerServer
 
         -- " " because json could already be the same and nothing would be updated
-        BuffManager.netBuffs:set(GLOBAL.json.encode(BuffManager.buffs) .. " ")
+        BuffManagerServer.netBuffs:set(GLOBAL.json.encode(BuffManagerServer.buffs) .. " ")
     end
 end)
 
 AddPrefabPostInit("player_classified", function (inst)
-    inst:AddComponent("BuffManager")
+    inst:AddComponent("BuffManagerServer")
     inst:AddComponent("TimeDifferenceManager")
 end)
