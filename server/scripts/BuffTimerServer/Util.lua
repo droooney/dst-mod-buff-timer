@@ -10,7 +10,7 @@ return {
     end,
 
     Log = function (self, ...)
-        print("[Buff Timer (server)]:", ...)
+        print("[Buff Timer]:", ...)
     end,
 
     FindIndex = function (self, array, cb)

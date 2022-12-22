@@ -1,4 +1,4 @@
-name = "Buff Timer (server)"
+name = "Buff Timer"
 description = "Mod that shows information on the character's current buffs. The info is restored between shards and on connection"
 author = "jimmybaxter"
 version = "2.0"

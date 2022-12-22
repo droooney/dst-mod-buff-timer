@@ -22,7 +22,13 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
             return
         end
 
-        local timeLeft = inst.components.timer:GetTimeLeft("buffover")
+        local timeLeft = inst.components.timer
+            and inst.components.timer:GetTimeLeft(Constants.BuffTimerName[buffType])
+            or GLOBAL.GetTaskRemaining(inst.task)
+
+        if not timeLeft then
+            return
+        end
 
         player_classified.components.BuffManagerServer:AddBuff({
             type = buffType,
@@ -40,7 +46,7 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
         player_classified.components.BuffManagerServer:RemoveBuff(buffType)
     end
 
-    AddPrefabPostInit("buff_" .. prefab, function (inst)
+    AddPrefabPostInit(prefab, function (inst)
         local onattachedfn = inst.components.debuff.onattachedfn
         local onextendedfn = inst.components.debuff.onextendedfn
         local ondetachedfn = inst.components.debuff.ondetachedfn

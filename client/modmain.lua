@@ -32,19 +32,25 @@ AddClassPostConstruct("components/playercontroller", function (playerController)
         playerController.RemoteUseItemFromInvTile = function (self, action, item, ...)
             RemoteUseItemFromInvTile(self, action, item, ...)
 
-            if action.action.id ~= "EAT" then
-                return
+            local buffs = {}
+
+            if action.action.id == "EAT" then
+                buffs = {
+                    Util:FindInObject(Constants.BuffByFoodPrefab, function (_, prefab)
+                        return Util:StartsWith(item.prefab, prefab)
+                    end),
+
+                    Util:FindInObject(Constants.BuffBySpicePrefab, function (_, prefab)
+                        return Util:EndsWith(item.prefab, prefab)
+                    end),
+                }
+            elseif action.action.id == "HEAL" then
+                buffs = {
+                    Util:FindInObject(Constants.BuffByHealingPrefab, function (_, prefab)
+                        return item.prefab == prefab
+                    end),
+                }
             end
-
-            local buffs = {
-                Util:FindInObject(Constants.BuffByFoodPrefab, function (_, prefab)
-                    return Util:StartsWith(item.prefab, prefab)
-                end),
-
-                Util:FindInObject(Constants.BuffBySpicePrefab, function (_, prefab)
-                    return Util:EndsWith(item.prefab, prefab)
-                end)
-            }
 
             for _, buffType in pairs(buffs) do
                 GLOBAL.ThePlayer.player_classified.components.BuffManagerClient:AddBuff(buffType)
