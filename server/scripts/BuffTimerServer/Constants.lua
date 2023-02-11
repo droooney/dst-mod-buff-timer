@@ -12,6 +12,9 @@ local BuffType = {
     FIRE_NETTLES = "FIRE_NETTLES",
     TILLWEED_SALVE = "TILLWEED_SALVE",
     COMPOST_WRAP = "COMPOST_WRAP",
+    LESSER_GLOW_BERRY = "LESSER_GLOW_BERRY",
+    GLOW_BERRY = "GLOW_BERRY",
+    GLOW_BERRY_MOUSSE = "GLOW_BERRY_MOUSSE",
 }
 
 local BuffImagePrefab = {
@@ -26,6 +29,9 @@ local BuffImagePrefab = {
     FIRE_NETTLES = "firenettles",
     TILLWEED_SALVE = "tillweedsalve",
     COMPOST_WRAP = "compostwrap",
+    LESSER_GLOW_BERRY = "wormlight_lesser",
+    GLOW_BERRY = "wormlight",
+    GLOW_BERRY_MOUSSE = "glowberrymousse",
 }
 
 local BuffTimerName = {
@@ -53,6 +59,9 @@ local BuffByPrefab = {
     firenettle_toxin = BuffType.FIRE_NETTLES,
     tillweedsalve_buff = BuffType.TILLWEED_SALVE,
     compostheal_buff = BuffType.COMPOST_WRAP,
+    wormlight_light_lesser = BuffType.LESSER_GLOW_BERRY,
+    wormlight_light = BuffType.GLOW_BERRY,
+    wormlight_light_greater = BuffType.GLOW_BERRY_MOUSSE,
 }
 
 return {

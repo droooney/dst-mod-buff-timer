@@ -11,6 +11,9 @@ local BuffType = {
     SOOTHING_TEA = "SOOTHING_TEA",
     FIRE_NETTLES = "FIRE_NETTLES",
     TILLWEED_SALVE = "TILLWEED_SALVE",
+    LESSER_GLOW_BERRY = "LESSER_GLOW_BERRY",
+    GLOW_BERRY = "GLOW_BERRY",
+    GLOW_BERRY_MOUSSE = "GLOW_BERRY_MOUSSE",
 }
 
 local BuffDuration = {
@@ -24,6 +27,9 @@ local BuffDuration = {
     SOOTHING_TEA = TUNING.SWEETTEA_DURATION,
     FIRE_NETTLES = TUNING.FIRE_NETTLE_TOXIN_DURATION,
     TILLWEED_SALVE = TUNING.TILLWEEDSALVE_DURATION,
+    LESSER_GLOW_BERRY = TUNING.WORMLIGHT_DURATION * 0.25,
+    GLOW_BERRY = TUNING.WORMLIGHT_DURATION,
+    GLOW_BERRY_MOUSSE = TUNING.WORMLIGHT_DURATION * 4,
 }
 
 local BuffImagePrefab = {
@@ -37,6 +43,9 @@ local BuffImagePrefab = {
     SOOTHING_TEA = "sweettea",
     FIRE_NETTLES = "firenettles",
     TILLWEED_SALVE = "tillweedsalve",
+    LESSER_GLOW_BERRY = "wormlight_lesser",
+    GLOW_BERRY = "wormlight",
+    GLOW_BERRY_MOUSSE = "glowberrymousse",
 }
 
 local BuffByFoodPrefab = {
@@ -46,6 +55,9 @@ local BuffByFoodPrefab = {
     jellybean = BuffType.JELLYBEANS,
     sweettea = BuffType.SOOTHING_TEA,
     firenettles = BuffType.FIRE_NETTLES,
+    wormlight_lesser = BuffType.LESSER_GLOW_BERRY,
+    wormlight = BuffType.GLOW_BERRY,
+    glowberrymousse = BuffType.GLOW_BERRY_MOUSSE,
 }
 
 local BuffByHealingPrefab = {
@@ -58,6 +70,10 @@ local BuffBySpicePrefab = {
     spice_sugar = BuffType.SPICE_HONEY,
 }
 
+local OverlappingBuffedFoods = {
+    {BuffType.LESSER_GLOW_BERRY, BuffType.GLOW_BERRY, BuffType.GLOW_BERRY_MOUSSE},
+}
+
 return {
     BuffType = BuffType,
     BuffDuration = BuffDuration,
@@ -65,4 +81,5 @@ return {
     BuffByFoodPrefab = BuffByFoodPrefab,
     BuffByHealingPrefab = BuffByHealingPrefab,
     BuffBySpicePrefab = BuffBySpicePrefab,
+    OverlappingBuffedFoods = OverlappingBuffedFoods,
 }

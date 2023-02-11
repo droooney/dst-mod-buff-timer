@@ -1,7 +1,7 @@
 name = "Buff Timer"
 description = "Mod that shows information on the character's current buffs. The info is restored between shards and on connection"
 author = "jimmybaxter"
-version = "2.0"
+version = "2.1"
 api_version = 10
 dst_compatible = true
 all_clients_require_mod = true

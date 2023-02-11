@@ -16,15 +16,17 @@ end)
 
 for prefab, buffType in pairs(Constants.BuffByPrefab) do
     local onAttachBuff = function (inst, target)
-        local player_classified = target.player_classified
+        local player_classified = target and target.player_classified
 
         if not player_classified then
             return
         end
 
-        local timeLeft = inst.components.timer
-            and inst.components.timer:GetTimeLeft(Constants.BuffTimerName[buffType])
-            or GLOBAL.GetTaskRemaining(inst.task)
+        local timeLeft = inst.components.spell
+            and inst.components.spell.duration - inst.components.spell.lifetime
+            or inst.components.timer
+                and inst.components.timer:GetTimeLeft(Constants.BuffTimerName[buffType])
+                or GLOBAL.GetTaskRemaining(inst.task)
 
         if not timeLeft then
             return
@@ -37,7 +39,7 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
     end
 
     local onDetachBuff = function (inst, target)
-        local player_classified = target.player_classified
+        local player_classified = target and target.player_classified
 
         if not player_classified then
             return
@@ -47,22 +49,65 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
     end
 
     AddPrefabPostInit(prefab, function (inst)
+        if inst.components.spell then
+            local spell = inst.components.spell
+
+            local onstartfn = spell.onstartfn
+            local resumefn = spell.resumefn
+            local onfinishfn = spell.onfinishfn
+
+            spell.onstartfn = function(...)
+                if onstartfn then
+                    onstartfn(...)
+                end
+
+                onAttachBuff(inst, spell.target)
+            end
+
+            spell.resumefn = function(...)
+                if resumefn then
+                    resumefn(...)
+                end
+
+                onAttachBuff(inst, spell.target)
+            end
+
+            spell.onfinishfn = function(...)
+                if onfinishfn then
+                    onfinishfn(...)
+                end
+
+                onDetachBuff(inst, spell.target)
+            end
+
+            return
+        end
+
         local onattachedfn = inst.components.debuff.onattachedfn
         local onextendedfn = inst.components.debuff.onextendedfn
         local ondetachedfn = inst.components.debuff.ondetachedfn
 
         inst.components.debuff:SetAttachedFn(function (inst, target, ...)
-            onattachedfn(inst, target, ...)
+            if onattachedfn then
+                onattachedfn(inst, target, ...)
+            end
+
             onAttachBuff(inst, target)
         end)
 
         inst.components.debuff:SetExtendedFn(function (inst, target, ...)
-            onextendedfn(inst, target, ...)
+            if onextendedfn then
+                onextendedfn(inst, target, ...)
+            end
+
             onAttachBuff(inst, target)
         end)
 
         inst.components.debuff:SetDetachedFn(function (inst, target, ...)
-            ondetachedfn(inst, target, ...)
+            if ondetachedfn then
+                ondetachedfn(inst, target, ...)
+            end
+
             onDetachBuff(inst, target)
         end)
     end)

@@ -37,7 +37,7 @@ AddClassPostConstruct("components/playercontroller", function (playerController)
             if action.action.id == "EAT" then
                 buffs = {
                     Util:FindInObject(Constants.BuffByFoodPrefab, function (_, prefab)
-                        return Util:StartsWith(item.prefab, prefab)
+                        return item.prefab == prefab or Util:StartsWith(item.prefab, prefab .. "_spice")
                     end),
 
                     Util:FindInObject(Constants.BuffBySpicePrefab, function (_, prefab)
@@ -53,6 +53,18 @@ AddClassPostConstruct("components/playercontroller", function (playerController)
             end
 
             for _, buffType in pairs(buffs) do
+                Util:ForEach(Constants.OverlappingBuffedFoods, function (overlappingFoods)
+                    if not Util:Includes(overlappingFoods, buffType) then
+                        return
+                    end
+
+                    Util:ForEach(overlappingFoods, function (overlappingBuffType)
+                        if overlappingBuffType ~= buffType then
+                            GLOBAL.ThePlayer.player_classified.components.BuffManagerClient:RemoveBuff(overlappingBuffType)
+                        end
+                    end)
+                end)
+
                 GLOBAL.ThePlayer.player_classified.components.BuffManagerClient:AddBuff(buffType)
             end
         end
