@@ -1,7 +1,7 @@
 name = "Buff Timer (client)"
 description = "Mod that shows information on the character's current buffs"
 author = "jimmybaxter"
-version = "2.1"
+version = "3.0"
 api_version = 10
 dst_compatible = true
 all_clients_require_mod = false

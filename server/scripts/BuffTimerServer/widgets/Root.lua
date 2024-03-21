@@ -8,6 +8,7 @@ local Util = require("BuffTimerServer/Util")
 require("constants")
 require("fonts")
 
+local TOAST_WIDTH = 135
 local LEFT_OFFSET = 20
 local TOP_OFFSET = 70
 local IMAGE_SIZE = 50
@@ -15,12 +16,14 @@ local MARGIN = 10
 local FONT_SIZE = 30
 local FONT = NUMBERFONT
 
-local Root = Class(Widget, function (self, buffManager, timeDifferenceManager)
+local Root = Class(Widget, function (self, controls, buffManager, timeDifferenceManager)
     Widget._ctor(self, "Root")
 
+    self.controls = controls
     self.TimeDifferenceManager = timeDifferenceManager
     self.buffs = buffManager:GetBuffs()
     self.listUpdated = true
+    self.toastCount = -1
 
     self.root = self:AddChild(Widget("root"))
     self.root:SetVAnchor(ANCHOR_TOP)
@@ -42,6 +45,28 @@ end)
 function Root:ClearBuffs()
     self.buffs = {}
     self.listUpdated = true
+end
+
+function Root:GetToastCount()
+    return Util:Reduce(self.controls.toastlocations, function (count, spot)
+        return count + (spot.toast and 1 or 0)
+    end, 0)
+end
+
+function Root:UpdatePositions()
+    local toastOffset = self.toastCount == 0
+        and 0
+        or (self.toastCount + 1) * TOAST_WIDTH
+
+    Util:ForEach(self.buffs, function (_, i)
+        local buffWidget = self.root.buffs.items[i]
+
+        if not buffWidget then
+            return
+        end
+
+        buffWidget:SetPosition(toastOffset + LEFT_OFFSET + i * (IMAGE_SIZE + MARGIN), -TOP_OFFSET)
+    end)
 end
 
 function Root:OnUpdate()
@@ -68,10 +93,16 @@ function Root:OnUpdate()
             buffWidget.timeLeft:SetPosition(0, -IMAGE_SIZE)
             buffWidget.timeLeft:SetHAlign(ANCHOR_MIDDLE)
 
-            buffWidget:SetPosition(LEFT_OFFSET + i * (IMAGE_SIZE + MARGIN), -TOP_OFFSET)
-
             table.insert(self.root.buffs.items, buffWidget)
         end)
+    end
+
+    local toastCount = self:GetToastCount()
+
+    if toastCount ~= self.toastCount or self.listUpdated then
+        self.toastCount = toastCount
+
+        self:UpdatePositions()
     end
 
     Util:ForEach(self.buffs, function (buff, i)

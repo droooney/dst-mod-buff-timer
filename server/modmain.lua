@@ -1,6 +1,7 @@
 local Root = require("BuffTimerServer/widgets/Root")
 
 local Constants = require("BuffTimerServer/Constants")
+local Util = require("BuffTimerServer/Util")
 
 require("constants")
 require("json")
@@ -8,6 +9,7 @@ require("json")
 AddClassPostConstruct("widgets/controls", function (controls)
     controls.inst:DoTaskInTime(0, function ()
         controls.buffTimer = controls.top_root:AddChild(Root(
+            controls,
             GLOBAL.ThePlayer.player_classified.components.BuffManagerServer,
             GLOBAL.ThePlayer.player_classified.components.TimeDifferenceManager
         ))
@@ -15,38 +17,7 @@ AddClassPostConstruct("widgets/controls", function (controls)
 end)
 
 for prefab, buffType in pairs(Constants.BuffByPrefab) do
-    local onAttachBuff = function (inst, target)
-        local player_classified = target and target.player_classified
-
-        if not player_classified then
-            return
-        end
-
-        local timeLeft = inst.components.spell
-            and inst.components.spell.duration - inst.components.spell.lifetime
-            or inst.components.timer
-                and inst.components.timer:GetTimeLeft(Constants.BuffTimerName[buffType])
-                or GLOBAL.GetTaskRemaining(inst.task)
-
-        if not timeLeft then
-            return
-        end
-
-        player_classified.components.BuffManagerServer:AddBuff({
-            type = buffType,
-            duration = timeLeft,
-        })
-    end
-
-    local onDetachBuff = function (inst, target)
-        local player_classified = target and target.player_classified
-
-        if not player_classified then
-            return
-        end
-
-        player_classified.components.BuffManagerServer:RemoveBuff(buffType)
-    end
+    local onAttachBuff, onDetachBuff = Util:GetBuffCallbacks(buffType)
 
     AddPrefabPostInit(prefab, function (inst)
         if inst.components.spell then
@@ -83,46 +54,96 @@ for prefab, buffType in pairs(Constants.BuffByPrefab) do
             return
         end
 
-        local onattachedfn = inst.components.debuff.onattachedfn
-        local onextendedfn = inst.components.debuff.onextendedfn
-        local ondetachedfn = inst.components.debuff.ondetachedfn
+        if inst.components.debuff then
+            local onattachedfn = inst.components.debuff.onattachedfn
+            local onextendedfn = inst.components.debuff.onextendedfn
+            local ondetachedfn = inst.components.debuff.ondetachedfn
 
-        inst.components.debuff:SetAttachedFn(function (inst, target, ...)
-            if onattachedfn then
-                onattachedfn(inst, target, ...)
-            end
+            inst.components.debuff:SetAttachedFn(function (inst, target, ...)
+                if onattachedfn then
+                    onattachedfn(inst, target, ...)
+                end
 
-            onAttachBuff(inst, target)
-        end)
+                onAttachBuff(inst, target)
+            end)
 
-        inst.components.debuff:SetExtendedFn(function (inst, target, ...)
-            if onextendedfn then
-                onextendedfn(inst, target, ...)
-            end
+            inst.components.debuff:SetExtendedFn(function (inst, target, ...)
+                if onextendedfn then
+                    onextendedfn(inst, target, ...)
+                end
 
-            onAttachBuff(inst, target)
-        end)
+                onAttachBuff(inst, target)
+            end)
 
-        inst.components.debuff:SetDetachedFn(function (inst, target, ...)
-            if ondetachedfn then
-                ondetachedfn(inst, target, ...)
-            end
+            inst.components.debuff:SetDetachedFn(function (inst, target, ...)
+                if ondetachedfn then
+                    ondetachedfn(inst, target, ...)
+                end
 
-            onDetachBuff(inst, target)
-        end)
+                onDetachBuff(inst, target)
+            end)
+        end
     end)
 end
 
 AddModRPCHandler("BuffManagerServer", "getBuffs", function (player, inst)
-    if inst.components.BuffManagerServer then
-        local BuffManagerServer = inst.components.BuffManagerServer
+    local BuffManagerServer = inst.components.BuffManagerServer
 
-        -- " " because json could already be the same and nothing would be updated
-        BuffManagerServer.netBuffs:set(GLOBAL.json.encode(BuffManagerServer.buffs) .. " ")
+    if not BuffManagerServer then
+        return
     end
+
+    -- " " because json could already be the same and nothing would be updated
+    BuffManagerServer.netBuffs:set(GLOBAL.json.encode(BuffManagerServer.buffs) .. " ")
 end)
 
 AddPrefabPostInit("player_classified", function (inst)
     inst:AddComponent("BuffManagerServer")
     inst:AddComponent("TimeDifferenceManager")
+
+    inst:DoTaskInTime(0, function ()
+        local temperature = inst._parent and inst._parent.components.temperature
+
+        if not temperature then
+            return
+        end
+
+        local target = inst._parent
+        local onDragonChiliSaladAttachBuff, onDragonChiliSaladDetachBuff = Util:GetBuffCallbacks(Constants.BuffType.DRAGON_CHILI_SALAD)
+        local onAsparagazpachoAttachBuff, onAsparagazpachoDetachBuff = Util:GetBuffCallbacks(Constants.BuffType.ASPARAGAZPACHO)
+
+        local tryAttachBuff = function ()
+            -- if it's less than 15 seconds, even if it's the buff food it's whatever
+            if not temperature.bellytask or GLOBAL.GetTaskRemaining(temperature.bellytask) < GLOBAL.TUNING.FOOD_TEMP_LONG + 1 then
+                return
+            end
+
+            local onfinish = temperature.bellytask.onfinishfn
+
+            temperature.bellytask.onfinish = function (...)
+                if onfinish then
+                    onfinish(...)
+                end
+
+                onDragonChiliSaladDetachBuff(target, target)
+                onAsparagazpachoDetachBuff(target, target)
+            end
+
+            if temperature.bellytemperaturedelta > 0 then
+                onDragonChiliSaladAttachBuff(target, target)
+            else
+                onAsparagazpachoAttachBuff(target, target)
+            end
+        end
+
+        local oldSetTemperatureInBelly = temperature.SetTemperatureInBelly
+
+        temperature.SetTemperatureInBelly = function ( ...)
+            oldSetTemperatureInBelly(...)
+
+            tryAttachBuff()
+        end
+
+        tryAttachBuff()
+    end)
 end)

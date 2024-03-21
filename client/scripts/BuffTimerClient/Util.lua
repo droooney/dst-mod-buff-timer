@@ -7,6 +7,8 @@ require("stringutil")
 local SERVER_MOD_NAMES = {"workshop-2630628898", "dst-mod-buff-timer-server"}
 
 return {
+    hasServerMod = nil,
+
     Inspect = function (self, value)
         return inspect(value)
     end,
@@ -59,6 +61,16 @@ return {
         end
     end,
 
+    Reduce = function (self, array, cb, initialValue)
+        local value = initialValue
+
+        self:ForEach(array, function (v, i)
+            value = cb(value, v, i)
+        end)
+
+        return value
+    end,
+
     Some = function (self, array, cb)
         for i, v in ipairs(array) do
             if cb(v, i) then
@@ -82,10 +94,14 @@ return {
     end,
 
     HasServerMod = function (self)
-        local serverMods = ModManager:GetServerModsNames()
+        if self.hasServerMod == nil then
+            local serverMods = ModManager:GetServerModsNames()
 
-        return self:Some(serverMods, function (serverMod)
-            return self:Includes(SERVER_MOD_NAMES, serverMod)
-        end)
+            self.hasServerMod = self:Some(serverMods, function (serverMod)
+                return self:Includes(SERVER_MOD_NAMES, serverMod)
+            end)
+        end
+
+        return self.hasServerMod
     end,
 }
