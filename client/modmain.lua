@@ -7,9 +7,11 @@ function onAction(action)
     local item = action.invobject
     local target = action.target
 
-    if item == nil then
+    if item == nil or action.handledByBuffTimer then
         return
     end
+
+    action.handledByBuffTimer = true
 
     -- TODO: add support for wigfrid/wurt/warly not being able to eat certain foods
     -- TODO: add action delay
@@ -67,7 +69,7 @@ AddClassPostConstruct("widgets/controls", function (controls)
 end)
 
 AddClassPostConstruct("components/playercontroller", function (playerController)
-    if Util:HasServerMod() or GLOBAL.TheNet:GetIsServer() then
+    if Util:HasServerMod() then
         return
     end
 
@@ -86,10 +88,6 @@ AddPrefabPostInit("player_classified", function (inst)
     end
 
     inst:AddComponent("BuffManagerClient")
-
-    if not GLOBAL.TheNet:GetIsServer() then
-        return
-    end
 
     inst:DoTaskInTime(0, function ()
         if not inst._parent then
